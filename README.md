@@ -1,73 +1,100 @@
-# Welcome to your Lovable project
+# Solve Diary
 
-## Project info
+Solve Diary는 개발자들이 일상적으로 마주하는 문제의 해결 과정을 체계적으로 기록하고, 개인의 성장과 팀의 지식 공유를 돕는 실무 중심의 문제 해결 일지 서비스입니다.
 
-**URL**: https://lovable.dev/projects/7a3dec5b-ab4c-4fb0-8fc9-16249e573b6a
+---
 
-## How can I edit this code?
+## 🧑‍💻 페르소나(Persona)
 
-There are several ways of editing your application.
+### 1. 취업 준비생/주니어 개발자
+- **목표**: 성장 과정 기록, 실무 문제 해결 경험 축적, 포트폴리오 활용
+- **행동**: 매일/주 단위로 문제 해결 과정을 기록, 다른 개발자의 해결 사례 참고
 
-**Use Lovable**
+### 2. 시니어 개발자/팀 리더
+- **목표**: 팀 내 지식 공유, 실전 노하우 전파, 후배 멘토링
+- **행동**: 팀원 문제 해결 일지 피드백, 팀 단위 공유/검색/통계 활용
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7a3dec5b-ab4c-4fb0-8fc9-16249e573b6a) and start prompting.
+### 3. 기술 문제 해결이 필요한 타 직군(기획, 디자이너 등)
+- **목표**: 개발 협업 중 발생한 문제 해결 경험 기록, 개발자와의 소통 자료로 활용
+- **행동**: 간단한 문제 해결 경험 기록, 팀 공유 기능 활용
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 📝 사용자 스토리(User Story)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **문제 해결 기록**: 사용자는 문제 발견부터 해결까지의 과정을 단계별로 기록할 수 있다.
+- **개인 성장 추적**: 사용자는 자신이 해결한 문제들을 한눈에 모아보고, 성장 히스토리를 확인할 수 있다.
+- **팀 지식 공유**: 사용자는 팀을 생성하고, 팀원들과 문제 해결 일지를 공유할 수 있다.
+- **신뢰성 확보**: 오직 해결 완료된 문제만 기록/공유되어, 검증된 해결책만 제공된다.
+- **검색 및 태그**: 사용자는 태그와 검색 기능을 통해 원하는 문제 해결 사례를 쉽게 찾을 수 있다.
+- **공유 링크**: 사용자는 자신의 문제 해결 과정을 외부에 공유할 수 있는 링크를 생성할 수 있다.
+- **권한 관리**: 팀 내에서 역할(소유자/관리자/멤버)에 따라 권한이 다르게 적용된다.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🚀 주요 기능
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- 문제-과정-해결 구조의 일지 작성 및 관리
+- 개인 대시보드 및 성장 히스토리 시각화
+- 팀 생성/관리 및 팀 내 일지 공유
+- 태그, 검색, 필터링, 통계 대시보드
+- NextAuth 기반 소셜 로그인(GitHub, Google)
+- Supabase 기반 데이터 관리 및 보안(RLS)
+- 반응형 UI, 다크모드 지원
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🛠️ 기술 스택
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Next.js API Routes, Supabase(PostgreSQL)
+- **Auth**: NextAuth.js (GitHub, Google)
+- **배포**: Vercel
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+---
+
+## 📦 프로젝트 구조
+
+```
+src/
+├── app/                    # Next.js 14 App Router
+│   ├── (auth)/            # 인증 관련 페이지
+│   ├── (dashboard)/       # 대시보드 페이지
+│   ├── (main)/            # 메인 페이지
+│   ├── (write)/           # 기록 추가 페이지
+│   ├── (detail)/          # 상세 페이지
+│   ├── api/               # API Routes
+│   └── page.tsx           # 랜딩 페이지
+├── components/            # 재사용 컴포넌트
+│   ├── ui/               # shadcn/ui 컴포넌트
+│   ├── layout/           # 레이아웃 컴포넌트
+│   ├── forms/            # 폼 컴포넌트
+│   └── features/         # 기능별 컴포넌트
+├── lib/                  # 유틸리티 함수
+├── types/                # TypeScript 타입 정의
+└── hooks/                # 커스텀 훅
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 💡 시작하기
 
-**Use GitHub Codespaces**
+1. 레포지토리 클론
+2. `pnpm install` 또는 `yarn install`
+3. `.env` 환경변수 설정 (Supabase, NextAuth 등)
+4. `pnpm dev` 또는 `yarn dev`로 개발 서버 실행
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 🙌 기여 가이드
+- 코드 스타일: TypeScript, ESLint, Prettier, Tailwind CSS
+- 커밋 메시지: 의미 있는 메시지 작성
+- 이슈/PR: 기능/버그 단위로 분리
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📄 라이선스
+MIT
 
-## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/7a3dec5b-ab4c-4fb0-8fc9-16249e573b6a) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+## 배포 링크 : https://code-story-forge.lovable.app/
