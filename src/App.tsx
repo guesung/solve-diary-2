@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import WriteStory from "./pages/WriteStory";
+import EditStory from "./pages/EditStory";
 import Community from "./pages/Community";
 import StoryDetail from "./pages/StoryDetail";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <WriteStory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit/:id" 
+              element={
+                <ProtectedRoute>
+                  <EditStory />
                 </ProtectedRoute>
               } 
             />

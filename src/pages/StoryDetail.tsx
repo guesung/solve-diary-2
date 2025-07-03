@@ -1,5 +1,5 @@
 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,16 +15,45 @@ import {
   AlertTriangle,
   Lightbulb,
   CheckCircle,
-  Loader2
+  Loader2,
+  Edit,
+  Trash2
 } from "lucide-react";
-import { useProblemSolution } from "@/hooks/useProblemSolutions";
+import { useProblemSolution, useDeleteProblemSolution } from "@/hooks/useProblemSolutions";
+import { useAuth } from "@/hooks/useAuth";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const StoryDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   
   // 실제 데이터 가져오기
   const { data: story, isLoading, error } = useProblemSolution(id || '');
+  const deleteMutation = useDeleteProblemSolution();
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; storyId: string | null; storyTitle: string }>({
+    open: false,
+    storyId: null,
+    storyTitle: "",
+  });
+
+  const handleDeleteClick = (storyId: string, storyTitle: string) => {
+    setDeleteDialog({ open: true, storyId, storyTitle });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteDialog.storyId) {
+      try {
+        await deleteMutation.mutateAsync(deleteDialog.storyId);
+        setDeleteDialog({ open: false, storyId: null, storyTitle: "" });
+        navigate("/dashboard");
+      } catch (error) {
+        console.error("스토리 삭제 중 오류 발생:", error);
+      }
+    }
+  };
 
   // 로딩 상태
   if (isLoading) {
@@ -105,6 +134,24 @@ const StoryDetail = () => {
             <Button variant="outline" size="sm">
               <Share2 className="h-4 w-4" />
             </Button>
+            {/* 작성자만 수정/삭제 버튼 표시 */}
+            {user && story.user_id === user.id && (
+              <>
+                <Link to={`/edit/${story.id}`}>
+                  <Button variant="outline" size="sm">
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleDeleteClick(story.id, story.title)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -170,6 +217,18 @@ const StoryDetail = () => {
         <Button variant="outline">이전 스토리</Button>
         <Button>다음 스토리</Button>
       </div>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog(prev => ({ ...prev, open }))}
+        title="스토리 삭제"
+        description={`"${deleteDialog.storyTitle}" 스토리를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+        onConfirm={handleDeleteConfirm}
+        confirmText="삭제"
+        cancelText="취소"
+        variant="destructive"
+      />
     </div>
   );
 };

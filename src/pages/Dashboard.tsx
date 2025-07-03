@@ -3,14 +3,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, BookOpen, Users, Target, Calendar, Award } from "lucide-react";
+import { TrendingUp, BookOpen, Users, Target, Calendar, Award, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useProblemSolutions } from "@/hooks/useProblemSolutions";
+import { useProblemSolutions, useDeleteProblemSolution } from "@/hooks/useProblemSolutions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useState } from "react";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { data: problemSolutions, isLoading, error } = useProblemSolutions(user?.id);
+  const deleteMutation = useDeleteProblemSolution();
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; storyId: string | null; storyTitle: string }>({
+    open: false,
+    storyId: null,
+    storyTitle: "",
+  });
 
   // 통계 계산
   const totalStories = problemSolutions?.length || 0;
@@ -19,6 +27,21 @@ const Dashboard = () => {
   
   // 최근 스토리 (최대 5개)
   const recentStories = problemSolutions?.slice(0, 5) || [];
+
+  const handleDeleteClick = (storyId: string, storyTitle: string) => {
+    setDeleteDialog({ open: true, storyId, storyTitle });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteDialog.storyId) {
+      try {
+        await deleteMutation.mutateAsync(deleteDialog.storyId);
+        setDeleteDialog({ open: false, storyId: null, storyTitle: "" });
+      } catch (error) {
+        console.error("스토리 삭제 중 오류 발생:", error);
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -139,9 +162,24 @@ const Dashboard = () => {
                           <Badge variant="outline">{story.difficulty}</Badge>
                         </div>
                       </div>
-                      <Link to={`/story/${story.id}`}>
-                        <Button variant="ghost" size="sm">보기</Button>
-                      </Link>
+                      <div className="flex items-center space-x-2">
+                        <Link to={`/story/${story.id}`}>
+                          <Button variant="ghost" size="sm">보기</Button>
+                        </Link>
+                        <Link to={`/edit/${story.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDeleteClick(story.id, story.title)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -214,6 +252,18 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog(prev => ({ ...prev, open }))}
+        title="스토리 삭제"
+        description={`"${deleteDialog.storyTitle}" 스토리를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+        onConfirm={handleDeleteConfirm}
+        confirmText="삭제"
+        cancelText="취소"
+        variant="destructive"
+      />
     </div>
   );
 };
