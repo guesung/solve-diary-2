@@ -158,19 +158,19 @@ const Login = () => {
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleLogin}
-                disabled={loading}
+                disabled={true}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                Google로 로그인
+                Google로 로그인 (설정 필요)
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={handleGitHubLogin}
-                disabled={loading}
+                disabled={true}
               >
                 <Github className="mr-2 h-4 w-4" />
-                GitHub로 로그인
+                GitHub로 로그인 (설정 필요)
               </Button>
             </div>
 

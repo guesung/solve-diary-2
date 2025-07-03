@@ -201,19 +201,19 @@ const SignUp = () => {
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleSignUp}
-                disabled={loading}
+                disabled={true}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                Google로 가입
+                Google로 가입 (설정 필요)
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={handleGitHubSignUp}
-                disabled={loading}
+                disabled={true}
               >
                 <Github className="mr-2 h-4 w-4" />
-                GitHub로 가입
+                GitHub로 가입 (설정 필요)
               </Button>
             </div>
 
