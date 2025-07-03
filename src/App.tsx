@@ -45,22 +45,8 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/community" 
-              element={
-                <ProtectedRoute>
-                  <Community />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/story/:id" 
-              element={
-                <ProtectedRoute>
-                  <StoryDetail />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/community" element={<Community />} />
+            <Route path="/story/:id" element={<StoryDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

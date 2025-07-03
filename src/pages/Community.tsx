@@ -6,59 +6,44 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, ThumbsUp, MessageCircle, Calendar, User } from "lucide-react";
+import { Search, Filter, ThumbsUp, MessageCircle, Calendar, User, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useProblemSolutions } from "@/hooks/useProblemSolutions";
 
 const Community = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBy, setFilterBy] = useState("latest");
-
-  const stories = [
-    {
-      id: 1,
-      title: "React Hook Form 유효성 검사 문제 해결",
-      author: "김개발",
-      authorInitial: "김",
-      difficulty: "중급",
-      tags: ["React", "TypeScript", "Form"],
-      summary: "복잡한 폼 유효성 검사를 구현하면서 겪은 문제와 Hook Form을 활용한 해결 과정을 공유합니다.",
-      likes: 24,
-      comments: 8,
-      createdAt: "2024-01-15",
-      status: "해결완료"
-    },
-    {
-      id: 2,
-      title: "Next.js 13 App Router 마이그레이션 경험기",
-      author: "박프론트",
-      authorInitial: "박",
-      difficulty: "고급",
-      tags: ["Next.js", "React", "Migration"],
-      summary: "Pages Router에서 App Router로 마이그레이션하면서 겪은 다양한 이슈들과 해결 방법을 단계별로 정리했습니다.",
-      likes: 45,
-      comments: 12,
-      createdAt: "2024-01-14",
-      status: "해결완료"
-    },
-    {
-      id: 3,
-      title: "TypeScript Generic 타입 오류 해결",
-      author: "이타입",
-      authorInitial: "이",
-      difficulty: "고급",
-      tags: ["TypeScript", "Generic"],
-      summary: "복잡한 Generic 타입 정의에서 발생한 컴파일 오류를 해결하는 과정에서 학습한 내용을 공유합니다.",
-      likes: 18,
-      comments: 5,
-      createdAt: "2024-01-13",
-      status: "진행중"
-    }
-  ];
+  
+  // 공개된 스토리들만 가져오기
+  const { data: stories = [], isLoading, error } = useProblemSolutions(undefined, true);
 
   const filteredStories = stories.filter(story =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     story.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // 로딩 상태
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">스토리를 불러오는 중...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <p className="text-red-600">스토리를 불러오는 중 오류가 발생했습니다.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -94,63 +79,70 @@ const Community = () => {
 
       {/* Stories Grid */}
       <div className="space-y-6">
-        {filteredStories.map((story) => (
-          <Card key={story.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-sm">{story.authorInitial}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{story.author}</span>
-                      <span>•</span>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{story.createdAt}</span>
+        {filteredStories.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">아직 공개된 스토리가 없습니다.</p>
+            <p className="text-gray-400 text-sm mt-2">첫 번째 스토리를 작성해보세요!</p>
+          </div>
+        ) : (
+          filteredStories.map((story) => (
+            <Card key={story.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="text-sm">사용자</AvatarFallback>
+                      </Avatar>
+                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <span>익명 사용자</span>
+                        <span>•</span>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>{new Date(story.created_at).toLocaleDateString('ko-KR')}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-xl mb-2 hover:text-blue-600 transition-colors">
-                    <Link to={`/story/${story.id}`}>{story.title}</Link>
-                  </CardTitle>
-                  <CardDescription className="text-base leading-relaxed mb-4">
-                    {story.summary}
-                  </CardDescription>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant={story.status === "해결완료" ? "default" : "secondary"}>
-                      {story.status}
-                    </Badge>
-                    <Badge variant="outline">{story.difficulty}</Badge>
-                    {story.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
-                        {tag}
+                    <CardTitle className="text-xl mb-2 hover:text-blue-600 transition-colors">
+                      <Link to={`/story/${story.id}`}>{story.title}</Link>
+                    </CardTitle>
+                    <CardDescription className="text-base leading-relaxed mb-4">
+                      {story.problem_description.substring(0, 150)}...
+                    </CardDescription>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant={story.status === "완료" ? "default" : "secondary"}>
+                        {story.status === "완료" ? "해결완료" : "진행중"}
                       </Badge>
-                    ))}
+                      <Badge variant="outline">{story.difficulty}</Badge>
+                      {story.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <ThumbsUp className="h-4 w-4" />
-                    <span>{story.likes}</span>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <ThumbsUp className="h-4 w-4" />
+                      <span>0</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <MessageCircle className="h-4 w-4" />
+                      <span>0</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>{story.comments}</span>
-                  </div>
+                  <Link to={`/story/${story.id}`}>
+                    <Button variant="outline" size="sm">자세히 보기</Button>
+                  </Link>
                 </div>
-                <Link to={`/story/${story.id}`}>
-                  <Button variant="outline" size="sm">자세히 보기</Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Call to Action */}

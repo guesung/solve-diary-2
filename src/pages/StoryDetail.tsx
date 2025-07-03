@@ -14,8 +14,11 @@ import {
   Clock,
   AlertTriangle,
   Lightbulb,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from "lucide-react";
+import { useProblemSolution } from "@/hooks/useProblemSolutions";
+import { Link } from "react-router-dom";
 
 const StoryDetail = () => {
   const { id } = useParams();

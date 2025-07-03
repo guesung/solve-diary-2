@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Lightbulb, CheckCircle, Tag, Clock, Target, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { AlertTriangle, Lightbulb, CheckCircle, Tag, Clock, Target, X, Globe, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateProblemSolution } from "@/hooks/useProblemSolutions";
@@ -23,12 +24,13 @@ const WriteStory = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
-    difficulty: "",
+    difficulty: "중급", // 기본값 설정
     problem: "",
     process: "",
     solution: "",
     insights: ""
   });
+  const [isPublic, setIsPublic] = useState(false); // 공개 설정 추가
 
   const availableTags = ["React", "TypeScript", "JavaScript", "CSS", "Node.js", "Python", "Java", "C++", "Go", "Rust", "Docker", "Kubernetes", "AWS", "GCP", "Azure", "MongoDB", "PostgreSQL", "MySQL", "Redis", "GraphQL", "REST API", "Webpack", "Vite", "Next.js", "Vue.js", "Angular", "Svelte", "Tailwind CSS", "Bootstrap", "Material-UI", "Ant Design"];
 
@@ -59,6 +61,16 @@ const WriteStory = () => {
       return;
     }
 
+    // difficulty 유효성 검사 추가
+    if (!formData.difficulty || !['초급', '중급', '고급'].includes(formData.difficulty)) {
+      toast({
+        title: "난이도 선택 필요",
+        description: "난이도를 선택해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await createProblemSolution.mutateAsync({
         title: formData.title,
@@ -69,7 +81,7 @@ const WriteStory = () => {
         difficulty: formData.difficulty as '초급' | '중급' | '고급',
         status: '완료',
         user_id: user.id,
-        is_public: false,
+        is_public: isPublic,
       });
 
       toast({
@@ -174,6 +186,27 @@ const WriteStory = () => {
                   ))}
                 </div>
               </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="public"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+              <Label htmlFor="public" className="flex items-center space-x-2">
+                {isPublic ? (
+                  <>
+                    <Globe className="h-4 w-4 text-blue-600" />
+                    <span>커뮤니티에 공개</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 text-gray-500" />
+                    <span>나만 보기</span>
+                  </>
+                )}
+              </Label>
+            </div>
             </div>
           </CardContent>
         </Card>
