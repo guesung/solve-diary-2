@@ -1,0 +1,218 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rules - 문제 해결 기록 서비스
+
+## 서비스 소개
+
+이 서비스는 개발자들이 일상적으로 마주하는 문제들의 해결 과정을 체계적으로 기록하고 공유할 수 있는 플랫폼입니다.
+
+### 핵심 가치
+- **문제 해결 과정의 기록**: 단순한 Q&A가 아닌, 문제 발견부터 해결까지의 전체 과정을 기록
+- **개인 성장 추적**: 내가 해결한 문제들을 한눈에 모아보며 성장 과정을 확인
+- **지식 공유**: 팀원들과 해결 과정을 공유하여 집단 지성 형성
+- **실무 중심**: 이론적 답변이 아닌, 실제 해결된 문제와 검증된 해결책 제공
+
+### 차별화 포인트
+1. **문제-과정-해결** 구조로 명확한 정보 제공
+2. **개인 문제 해결 일지**를 통한 성장 기록
+3. **팀 단위 지식 공유** 강화
+4. **해결 완료된 문제**만 기록하여 신뢰성 확보
+
+### 타겟 사용자
+- 주 타겟: 개발자 (취업 준비생, 주니어/시니어 개발자)
+- 부 타겟: 기술 관련 문제 해결이 필요한 모든 직군
+
+---
+
+## 프로젝트 구조 및 개발 가이드
+
+### 기술 스택
+- **Frontend**: Next.js 14 + TypeScript + Tailwind CSS + shadcn/ui
+- **Backend**: Next.js API Routes + Supabase
+- **Database**: PostgreSQL (Supabase)
+- **Authentication**: NextAuth.js (GitHub, Google 로그인)
+- **Deployment**: Vercel
+- **Styling**: Tailwind CSS + shadcn/ui
+
+### 프로젝트 구조
+```
+src/
+├── app/                    # Next.js 14 App Router
+│   ├── (auth)/            # 인증 관련 페이지
+│   ├── (dashboard)/       # 대시보드 페이지
+│   ├── api/               # API Routes
+│   ├── globals.css        # 전역 스타일
+│   ├── layout.tsx         # 루트 레이아웃
+│   └── page.tsx           # 홈페이지
+├── components/            # 재사용 컴포넌트
+│   ├── ui/               # shadcn/ui 컴포넌트
+│   ├── layout/           # 레이아웃 컴포넌트
+│   ├── forms/            # 폼 컴포넌트
+│   └── features/         # 기능별 컴포넌트
+├── lib/                  # 유틸리티 함수
+│   ├── supabase.ts       # Supabase 클라이언트
+│   ├── auth.ts           # NextAuth 설정
+│   └── utils.ts          # 공통 유틸리티
+├── types/                # TypeScript 타입 정의
+└── hooks/                # 커스텀 훅
+```
+
+### 핵심 기능 구현 가이드
+
+#### 1. 문제 해결 일지 작성
+```typescript
+// 데이터 구조
+interface ProblemSolution {
+  id: string
+  title: string
+  problem_description: string
+  solution_process: string
+  final_solution: string
+  tags: string[]
+  created_at: string
+  updated_at: string
+  user_id: string
+  team_id?: string
+  is_public: boolean
+}
+```
+
+#### 2. 팀 기능
+```typescript
+interface Team {
+  id: string
+  name: string
+  description: string
+  created_at: string
+  owner_id: string
+}
+
+interface TeamMember {
+  team_id: string
+  user_id: string
+  role: 'owner' | 'admin' | 'member'
+  joined_at: string
+}
+```
+
+#### 3. 공유 기능
+```typescript
+interface SharedLink {
+  id: string
+  problem_solution_id: string
+  share_token: string
+  expires_at?: string
+  created_at: string
+}
+```
+
+### 개발 규칙
+
+#### 코드 스타일
+- **TypeScript**: 모든 컴포넌트와 함수에 타입 정의
+- **ESLint + Prettier**: 코드 포맷팅 자동화
+- **컴포넌트 명명**: PascalCase (예: `ProblemSolutionCard`)
+- **파일 명명**: kebab-case (예: `problem-solution-card.tsx`)
+
+#### 컴포넌트 구조
+```typescript
+// 컴포넌트 예시 구조
+interface ComponentProps {
+  // Props 타입 정의
+}
+
+export default function Component({ ...props }: ComponentProps) {
+  // 상태 관리
+  // 이벤트 핸들러
+  // 렌더링
+  return (
+    <div className="...">
+      {/* JSX */}
+    </div>
+  )
+}
+```
+
+#### 상태 관리
+- **React Query**: 서버 상태 관리
+- **Zustand**: 클라이언트 상태 관리 (필요시)
+- **React Hook Form**: 폼 상태 관리
+
+#### 스타일링 가이드
+- **Tailwind CSS**: 유틸리티 클래스 사용
+- **shadcn/ui**: 기본 컴포넌트 활용
+- **반응형 디자인**: mobile-first 접근
+- **다크모드**: 지원 필수
+
+#### 데이터베이스 설계
+```sql
+-- 주요 테이블 구조
+CREATE TABLE problem_solutions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,
+  problem_description TEXT NOT NULL,
+  solution_process TEXT NOT NULL,
+  final_solution TEXT NOT NULL,
+  tags TEXT[],
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  user_id UUID REFERENCES users(id),
+  team_id UUID REFERENCES teams(id),
+  is_public BOOLEAN DEFAULT FALSE
+);
+```
+
+### 개발 우선순위
+
+#### Phase 1: MVP (2-3주)
+1. 사용자 인증 (GitHub, Google)
+2. 문제 해결 일지 CRUD
+3. 개인 대시보드
+4. 기본 공유 기능
+
+#### Phase 2: 팀 기능 (2-3주)
+1. 팀 생성/관리
+2. 팀원 초대
+3. 팀 내 문제 해결 일지 공유
+4. 권한 관리
+
+#### Phase 3: 고도화 (4-6주)
+1. 검색 및 필터링
+2. 태그 시스템
+3. 댓글 기능
+4. 통계 대시보드
+
+### 성능 최적화
+- **이미지 최적화**: Next.js Image 컴포넌트 사용
+- **코드 분할**: 동적 import 활용
+- **캐싱**: React Query 활용
+- **SEO**: 메타 태그 및 구조화된 데이터
+
+### 보안 고려사항
+- **인증**: NextAuth.js 활용
+- **권한 관리**: RLS (Row Level Security) 적용
+- **입력 검증**: Zod 스키마 검증
+- **CORS**: 적절한 CORS 정책 설정
+
+### 테스트 전략
+- **Unit Test**: Jest + React Testing Library
+- **E2E Test**: Playwright (추후 단계)
+- **Type Safety**: TypeScript strict mode
+
+### 배포 및 CI/CD
+- **Vercel**: 자동 배포
+- **Environment Variables**: 환경별 설정 관리
+- **Database Migration**: Supabase 마이그레이션 활용
+
+---
+
+## 개발 시 주의사항
+
+1. **사용자 경험 최우선**: 복잡한 기능보다 직관적인 UX 우선
+2. **데이터 일관성**: 문제-과정-해결의 명확한 구조 유지
+3. **성능 최적화**: 대용량 텍스트 데이터 처리 최적화
+4. **확장성 고려**: 팀 기능 확장을 위한 유연한 구조 설계
+5. **개발자 친화적**: 마크다운 지원, 코드 하이라이팅 등
