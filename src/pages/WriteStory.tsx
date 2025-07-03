@@ -8,27 +8,83 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Lightbulb, CheckCircle, Tag, Clock, Target } from "lucide-react";
+import { AlertTriangle, Lightbulb, CheckCircle, Tag, Clock, Target, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useCreateProblemSolution } from "@/hooks/useProblemSolutions";
+import { useNavigate } from "react-router-dom";
 
 const WriteStory = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const createProblemSolution = useCreateProblemSolution();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     difficulty: "",
-    tags: [],
     problem: "",
     process: "",
     solution: "",
     insights: ""
   });
 
-  const handleSubmit = () => {
-    toast({
-      title: "스토리가 성공적으로 저장되었습니다!",
-      description: "커뮤니티에서 다른 개발자들과 공유해보세요.",
-    });
+  const availableTags = ["React", "TypeScript", "JavaScript", "CSS", "Node.js", "Python", "Java", "C++", "Go", "Rust", "Docker", "Kubernetes", "AWS", "GCP", "Azure", "MongoDB", "PostgreSQL", "MySQL", "Redis", "GraphQL", "REST API", "Webpack", "Vite", "Next.js", "Vue.js", "Angular", "Svelte", "Tailwind CSS", "Bootstrap", "Material-UI", "Ant Design"];
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "로그인이 필요합니다",
+        description: "스토리를 저장하려면 로그인해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.title || !formData.problem || !formData.process || !formData.solution) {
+      toast({
+        title: "필수 정보 누락",
+        description: "제목, 문제 정의, 해결 과정, 최종 해결책을 모두 입력해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await createProblemSolution.mutateAsync({
+        title: formData.title,
+        problem_description: formData.problem,
+        solution_process: formData.process,
+        final_solution: formData.solution,
+        tags: selectedTags,
+        difficulty: formData.difficulty as '초급' | '중급' | '고급',
+        status: '완료',
+        user_id: user.id,
+        is_public: false,
+      });
+
+      toast({
+        title: "스토리가 성공적으로 저장되었습니다!",
+        description: "대시보드에서 확인할 수 있습니다.",
+      });
+      
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "저장 실패",
+        description: "스토리 저장 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    }
   };
 
   const steps = [
@@ -102,10 +158,18 @@ const WriteStory = () => {
               </div>
               <div>
                 <Label>태그</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {["React", "TypeScript", "JavaScript", "CSS", "Node.js"].map((tag) => (
-                    <Badge key={tag} variant="secondary" className="cursor-pointer hover:bg-blue-100">
+                <div className="flex flex-wrap gap-2 mt-2 max-h-32 overflow-y-auto">
+                  {availableTags.map((tag) => (
+                    <Badge 
+                      key={tag} 
+                      variant={selectedTags.includes(tag) ? "default" : "secondary"} 
+                      className="cursor-pointer hover:bg-blue-100"
+                      onClick={() => toggleTag(tag)}
+                    >
                       {tag}
+                      {selectedTags.includes(tag) && (
+                        <X className="ml-1 h-3 w-3" />
+                      )}
                     </Badge>
                   ))}
                 </div>
@@ -221,8 +285,12 @@ const WriteStory = () => {
                 <Button variant="outline" onClick={() => setCurrentStep(2)}>
                   이전: 해결 과정
                 </Button>
-                <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700">
-                  스토리 저장하기
+                <Button 
+                  onClick={handleSubmit} 
+                  className="bg-green-600 hover:bg-green-700"
+                  disabled={createProblemSolution.isPending}
+                >
+                  {createProblemSolution.isPending ? "저장 중..." : "스토리 저장하기"}
                 </Button>
               </div>
             </CardContent>

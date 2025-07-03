@@ -10,7 +10,10 @@ import WriteStory from "./pages/WriteStory";
 import Community from "./pages/Community";
 import StoryDetail from "./pages/StoryDetail";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/auth/Login";
+import SignUp from "./pages/auth/SignUp";
 import Header from "./components/Header";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -24,10 +27,40 @@ const App = () => (
           <Header />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/write" element={<WriteStory />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/story/:id" element={<StoryDetail />} />
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/signup" element={<SignUp />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/write" 
+              element={
+                <ProtectedRoute>
+                  <WriteStory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/community" 
+              element={
+                <ProtectedRoute>
+                  <Community />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/story/:id" 
+              element={
+                <ProtectedRoute>
+                  <StoryDetail />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

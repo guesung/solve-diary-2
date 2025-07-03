@@ -5,24 +5,47 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, BookOpen, Users, Target, Calendar, Award } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useProblemSolutions } from "@/hooks/useProblemSolutions";
 
 const Dashboard = () => {
-  const recentStories = [
-    {
-      id: 1,
-      title: "React Hook Form 유효성 검사 문제 해결",
-      status: "완료",
-      createdAt: "2024-01-15",
-      difficulty: "중급"
-    },
-    {
-      id: 2,
-      title: "TypeScript Generic 타입 오류 해결",
-      status: "진행중",
-      createdAt: "2024-01-14",
-      difficulty: "고급"
-    }
-  ];
+  const { user } = useAuth();
+  const { data: problemSolutions, isLoading, error } = useProblemSolutions(user?.id);
+
+  // 통계 계산
+  const totalStories = problemSolutions?.length || 0;
+  const completedStories = problemSolutions?.filter(story => story.status === '완료').length || 0;
+  const completionRate = totalStories > 0 ? Math.round((completedStories / totalStories) * 100) : 0;
+  
+  // 최근 스토리 (최대 5개)
+  const recentStories = problemSolutions?.slice(0, 5) || [];
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">데이터를 불러오는 중 오류가 발생했습니다</h2>
+          <p className="text-gray-600">잠시 후 다시 시도해주세요.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -39,10 +62,10 @@ const Dashboard = () => {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">
-              +2 이번 주
-            </p>
+                      <div className="text-2xl font-bold">{totalStories}</div>
+          <p className="text-xs text-muted-foreground">
+            총 스토리 수
+          </p>
           </CardContent>
         </Card>
 
@@ -52,10 +75,10 @@ const Dashboard = () => {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18</div>
-            <p className="text-xs text-muted-foreground">
-              75% 완료율
-            </p>
+                      <div className="text-2xl font-bold">{completedStories}</div>
+          <p className="text-xs text-muted-foreground">
+            {completionRate}% 완료율
+          </p>
           </CardContent>
         </Card>
 
@@ -103,23 +126,32 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentStories.map((story) => (
-                  <div key={story.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">{story.title}</h3>
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <span>{story.createdAt}</span>
-                        <Badge variant={story.status === "완료" ? "default" : "secondary"}>
-                          {story.status}
-                        </Badge>
-                        <Badge variant="outline">{story.difficulty}</Badge>
+                {recentStories.length > 0 ? (
+                  recentStories.map((story) => (
+                    <div key={story.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-1">{story.title}</h3>
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                          <span>{new Date(story.created_at).toLocaleDateString('ko-KR')}</span>
+                          <Badge variant={story.status === "완료" ? "default" : "secondary"}>
+                            {story.status}
+                          </Badge>
+                          <Badge variant="outline">{story.difficulty}</Badge>
+                        </div>
                       </div>
+                      <Link to={`/story/${story.id}`}>
+                        <Button variant="ghost" size="sm">보기</Button>
+                      </Link>
                     </div>
-                    <Link to={`/story/${story.id}`}>
-                      <Button variant="ghost" size="sm">보기</Button>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>아직 작성한 스토리가 없습니다.</p>
+                    <Link to="/write">
+                      <Button className="mt-2">첫 스토리 작성하기</Button>
                     </Link>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
