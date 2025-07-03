@@ -42,7 +42,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              왜 DevStory인가요?
+              왜 SolveDiary인가요?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               문제 해결 과정을 체계적으로 기록하고, 성장을 추적하며, 커뮤니티와 함께 발전하세요.
