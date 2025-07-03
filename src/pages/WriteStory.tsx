@@ -207,7 +207,6 @@ const WriteStory = () => {
                 )}
               </Label>
             </div>
-            </div>
           </CardContent>
         </Card>
 
