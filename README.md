@@ -32,4 +32,4 @@ Solve Diary는 개발자들이 일상적으로 마주하는 문제의 해결 과
 
 
 ---
-## 배포 링크 : https://code-story-forge.lovable.app/
+## 배포 링크 : https://solve-diary.vercel.app/
